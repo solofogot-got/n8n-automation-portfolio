@@ -1,0 +1,1277 @@
+{
+  "name": "404-link checker",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "id": "f9e88af6-970a-438c-a2ef-ba434cd744f8",
+      "name": "Telegram Trigger1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -4832,
+        688
+      ],
+      "webhookId": "unique-webhook-id-001",
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "=Пришли Excel файл со ссылками\nгде столбец A = URL для проверки.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "33d60429-99fc-47dc-bba2-c6e297783bed",
+      "name": "TG Ask File1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2880,
+        832
+      ],
+      "webhookId": "b14dcec1-9dd7-4c5c-8d33-b91a66b9a935",
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $node[\"Telegram Trigger1\"].json.message.document.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "1b94844e-9d60-410a-8c25-a60bc537ae32",
+      "name": "Download Excel1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3072,
+        496
+      ],
+      "webhookId": "574c8de6-77e3-4576-9440-6d43d0523169",
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fileFormat": "xlsx",
+        "options": {
+          "headerRow": false,
+          "range": ""
+        }
+      },
+      "id": "d8816e0b-811e-4b56-8862-b1669da06023",
+      "name": "Spreadsheet Parse1",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [
+        -2800,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "=✅ Загрузил {{ $json.number_url }} ссылок в БД. Начинаю проверку.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "c03337a7-c28d-4d9f-8372-a25464849b37",
+      "name": "TG Notify Start2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1872,
+        496
+      ],
+      "webhookId": "29ea1795-cc73-46fb-8134-fe1f08533885",
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "dbbd6c19-b9e9-4947-b959-4b248dc6c965",
+      "name": "Split Batches1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1312,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "method": "HEAD",
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "323ce612-f266-4755-a970-a10eaeb0796e",
+      "name": "Check ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1056,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-id",
+              "name": "id",
+              "type": "number",
+              "value": "={{ $('Split Batches1').item.json.id }}"
+            },
+            {
+              "id": "assign-url",
+              "name": "url",
+              "type": "string",
+              "value": "={{ $('Split Batches1').item.json.url }}"
+            },
+            {
+              "id": "assign-state",
+              "name": "state",
+              "type": "string",
+              "value": "={{ $json.statusCode === 404 ? '404' : ($json.statusCode >= 200 && $json.statusCode < 300 ? 'ok' : 'error') }}"
+            },
+            {
+              "id": "assign-status-code",
+              "name": "status_code",
+              "type": "number",
+              "value": "={{ $json.statusCode }}"
+            },
+            {
+              "id": "assign-checked-at",
+              "name": "checked_at",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3881e16b-82d6-4d43-92e1-1e0e2c7779b8",
+      "name": "Set Status1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -816,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "links",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "=eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "state",
+              "fieldValue": "={{ $json.state }}"
+            },
+            {
+              "fieldId": "status_code",
+              "fieldValue": "={{ $json.status_code }}"
+            }
+          ]
+        }
+      },
+      "id": "12ba1147-44f9-4000-bed2-424261fa247a",
+      "name": "Update Supabase2",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "6f8a6f4d-bce6-4f4b-b901-b5b7ed77bbc1",
+      "name": "Wait 1s1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        512
+      ],
+      "webhookId": "40b4f082-4e90-4a50-bb03-18b5dcc2063f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "87ea271e-09d2-421a-9996-ad433ad6226f",
+              "name": "number_url",
+              "value": "={{ $('Supabase Insert').all().length }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2176,
+        496
+      ],
+      "id": "6c34d93f-e8ac-4abf-af7d-b039d656b752",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "links",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "state",
+              "condition": "=eq",
+              "keyValue": "now"
+            }
+          ]
+        }
+      },
+      "id": "7ff93ad4-e1ec-4504-a746-9289a9f9b7ab",
+      "name": "Get now2",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        496
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me1",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        176
+      ],
+      "id": "0a41064a-277b-4103-84df-573cb9262323"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "links",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "state",
+              "condition": "=eq",
+              "keyValue": "404"
+            }
+          ]
+        }
+      },
+      "id": "4f42b9b2-52fc-44c3-ac40-2a23fab9d3c3",
+      "name": "Get now3",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        176
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "87ea271e-09d2-421a-9996-ad433ad6226f",
+              "name": "number_url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        176
+      ],
+      "id": "732d94cb-8dba-4421-a2fe-0fece2eaba98",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "compare": "={{ $json.number_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        176
+      ],
+      "id": "0a6b22e7-2ef1-44d2-aaa7-2bbdb08e5cf3",
+      "name": "Remove Duplicates3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        176
+      ],
+      "id": "b33f9590-e6a9-4c8c-bea7-98b9bd0bb786",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').first().json.message.chat.id }}",
+        "text": "={{ $json.number_url }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "dda8266e-787e-46ef-aa5b-cec328a1d81c",
+      "name": "TG Notify Start3",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        192
+      ],
+      "webhookId": "29ea1795-cc73-46fb-8134-fe1f08533885",
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me3",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "565a105a-f037-4e85-a8aa-a4ef2a5ee41b"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "links",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "neq",
+              "keyValue": "0"
+            }
+          ]
+        }
+      },
+      "id": "bd3e31ea-5ef6-4d13-a8b9-7797901d9f72",
+      "name": "Update Supabase3",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "48e4bf82-b2c3-40c1-a6d8-f16f57103858",
+              "name": "url",
+              "value": "={{ $json.row[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2640,
+        496
+      ],
+      "id": "8841013c-7ee6-4d60-8114-7daf41d7e221",
+      "name": "причес ссылок"
+    },
+    {
+      "parameters": {
+        "tableId": "links",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $json.url.split('?')[0] }}"
+            },
+            {
+              "fieldId": "state",
+              "fieldValue": "now"
+            }
+          ]
+        }
+      },
+      "id": "65722fa7-dfbc-45af-9079-6d6d57cd28d9",
+      "name": "Supabase Insert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2480,
+        496
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "compare": "={{ $json.number_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -2016,
+        496
+      ],
+      "id": "ac32ff12-86ae-48d5-a0b7-d6ea2fc1778e",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "content": "## parser\nи загрузка в базу",
+        "height": 128,
+        "width": 400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2800,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "8b96b75a-779e-41ca-ae4c-81fd80be175e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## сколько строк в базе получилось - \nотчет сколько ссылок загрузил",
+        "height": 128,
+        "width": 400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2192,
+        320
+      ],
+      "typeVersion": 1,
+      "id": "c8a5fe48-b9be-4ba3-92a0-7714f090fb15",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## проверка на 404 и метка в базу",
+        "height": 80,
+        "width": 592,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "640204e8-74f7-4b70-83f9-83fbe7aa65d7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## отчет о 404",
+        "height": 80,
+        "width": 256,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        192
+      ],
+      "typeVersion": 1,
+      "id": "cfaacee6-69bc-4eb0-b955-6ee2ea8f2f66",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## очистка базы",
+        "height": 80,
+        "width": 256,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "8e55ba2a-2d9a-4d20-9a25-5dd99ce19b84",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "privratnic_for_bots",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $json.message?.chat?.id || $json.callback_query?.message?.chat?.id || $json.callback_query?.from?.id }}"
+            },
+            {
+              "keyName": "odobreno",
+              "keyValue": "da"
+            },
+            {
+              "keyName": "BOT",
+              "keyValue": "PARSER404"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -4016,
+        704
+      ],
+      "id": "635ae44a-76ac-4a61-82ab-f72b7673d5e0",
+      "name": "Get a row2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "fz3F3LNuFSig7Ph5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": "запрос",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c7637f9b-9bbf-4ca5-a804-3156e7ab6476"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "запрос"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -4272,
+        688
+      ],
+      "id": "78566af4-fecc-4650-9982-8dc5e8890c2d",
+      "name": "Запрос на пользование"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "=Привет! Я - PARSER 404 страниц на сайтах.\nОбратись за разрешением пользоваться мной: отправь ответом слово \"запрос\"! ",
+        "replyMarkup": "forceReply",
+        "forceReply": {
+          "force_reply": true
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3728,
+        688
+      ],
+      "id": "83d6f4b6-eca7-43ea-ae41-7e440c77929d",
+      "name": "запрос разрешения",
+      "webhookId": "319a46b2-fe5d-404a-84b4-b96df33f2b1c",
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ENhUdRYwzssm8nx6",
+          "name": "поиск ошибки 404"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "376d4846-81a5-46fd-85db-0fc7012c521d",
+              "name": "bot_name",
+              "value": "=PARSER404",
+              "type": "string"
+            },
+            {
+              "id": "79f5c189-9e08-4d77-abbb-cc423766263c",
+              "name": "chat_id",
+              "value": "={{ $json.message.reply_to_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "d6309ee8-6286-4ab7-a45f-20bee72175d0",
+              "name": "first_name",
+              "value": "={{ $json.message.reply_to_message.chat.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "2fb17eb1-1291-4282-bc86-7c4210a37558",
+              "name": "username",
+              "value": "={{ $json.message.reply_to_message.chat.username }}",
+              "type": "string"
+            },
+            {
+              "id": "b0c9c46c-fd2f-40e7-8008-db268d0d429b",
+              "name": "message",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4288,
+        400
+      ],
+      "id": "e323d9a3-c511-425a-bb97-0f7779d8c14a",
+      "name": "zapros_to_my1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ia670zFUjRmBqTjqGDoUx",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ia670zFUjRmBqTjqGDoUx",
+          "cachedResultName": "ПРИВРАТНИК-запрос-разрешение"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -4128,
+        400
+      ],
+      "id": "93838069-1d20-41a0-93d1-d20e24fd5b78",
+      "name": "Привратнику",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2a737115-a6ab-49ea-bc56-fb589c2030bb",
+              "leftValue": "={{ $json.odobreno }}",
+              "rightValue": "da",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4016,
+        528
+      ],
+      "id": "1963ff39-f231-4889-8d0e-114e67a45f54",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "content": "# запрос на пользование ботом",
+        "height": 144,
+        "width": 560,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4320,
+        224
+      ],
+      "typeVersion": 1,
+      "id": "678eec60-f264-45cc-a810-b0ca36531b51",
+      "name": "Sticky Note22"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f8daf75-0d68-4dff-9019-52ff49edd674",
+              "leftValue": "={{ $('Telegram Trigger1').item.json.message.text }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3168,
+        832
+      ],
+      "id": "25634143-565a-419b-a357-12f3574a734a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "11cff3be-bf01-4fa2-aeaa-cb6623263798",
+              "leftValue": "={{ $('Telegram Trigger1').item.json.message.document }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3376,
+        512
+      ],
+      "id": "f110768d-9dd1-4830-b6ca-6a0d03aeaeca",
+      "name": "If1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Запрос на пользование",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Excel1": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet Parse1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet Parse1": {
+      "main": [
+        [
+          {
+            "node": "причес ссылок",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Notify Start2": {
+      "main": [
+        [
+          {
+            "node": "Get now2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Batches1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check ": {
+      "main": [
+        [
+          {
+            "node": "Set Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Status1": {
+      "main": [
+        [
+          {
+            "node": "Update Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Wait 1s1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1s1": {
+      "main": [
+        [
+          {
+            "node": "Split Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get now2": {
+      "main": [
+        [
+          {
+            "node": "Split Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Get now3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get now3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG Notify Start3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Notify Start3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me3": {
+      "main": [
+        [
+          {
+            "node": "Update Supabase3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "причес ссылок": {
+      "main": [
+        [
+          {
+            "node": "Supabase Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Insert": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "TG Notify Start2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Запрос на пользование": {
+      "main": [
+        [
+          {
+            "node": "zapros_to_my1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "zapros_to_my1": {
+      "main": [
+        [
+          {
+            "node": "Привратнику",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "запрос разрешения",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "TG Ask File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG Ask File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Download Excel1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "AckhX_W22Edrf9M7XznTd"
+  },
+  "versionId": "017c8deb-cc23-445b-926d-d7dbf0c2bf21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17e4fc35cc044cf821799e4110dfa49479f4171d0b000c1a1538fa459aebaa7a"
+  },
+  "id": "bLqyNSKAxZTXcw-AOFCl_",
+  "tags": []
+}
