@@ -21,7 +21,7 @@
       "webhookId": "unique-webhook-id-001",
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -45,7 +45,7 @@
       "webhookId": "b14dcec1-9dd7-4c5c-8d33-b91a66b9a935",
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -67,7 +67,7 @@
       "webhookId": "574c8de6-77e3-4576-9440-6d43d0523169",
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -108,7 +108,7 @@
       "webhookId": "29ea1795-cc73-46fb-8134-fe1f08533885",
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -234,7 +234,7 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       }
@@ -301,7 +301,7 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       }
@@ -343,7 +343,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       },
@@ -419,7 +419,7 @@
       "webhookId": "29ea1795-cc73-46fb-8134-fe1f08533885",
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -460,7 +460,7 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       }
@@ -514,7 +514,7 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       }
@@ -645,7 +645,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "fz3F3LNuFSig7Ph5",
+          "id": " ",
           "name": "Supabase account"
         }
       }
@@ -717,7 +717,7 @@
       "notesInFlow": true,
       "credentials": {
         "telegramApi": {
-          "id": "ENhUdRYwzssm8nx6",
+          "id": " ",
           "name": "поиск ошибки 404"
         }
       }
@@ -773,9 +773,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "ia670zFUjRmBqTjqGDoUx",
+          "value": "",
           "mode": "list",
-          "cachedResultUrl": "/workflow/ia670zFUjRmBqTjqGDoUx",
+          "cachedResultUrl": "/workflow/",
           "cachedResultName": "ПРИВРАТНИК-запрос-разрешение"
         },
         "workflowInputs": {
@@ -1265,13 +1265,13 @@
     "availableInMCP": false,
     "timeSavedMode": "fixed",
     "callerPolicy": "workflowsFromSameOwner",
-    "errorWorkflow": "AckhX_W22Edrf9M7XznTd"
+    "errorWorkflow": ""
   },
-  "versionId": "017c8deb-cc23-445b-926d-d7dbf0c2bf21",
+  "versionId": "",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "17e4fc35cc044cf821799e4110dfa49479f4171d0b000c1a1538fa459aebaa7a"
   },
-  "id": "bLqyNSKAxZTXcw-AOFCl_",
+  "id": "",
   "tags": []
 }
