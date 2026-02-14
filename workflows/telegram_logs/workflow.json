@@ -1,0 +1,1383 @@
+{
+  "name": "my logs workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "*"
+        ],
+        "additionalFields": {
+          "download": true,
+          "imageSize": "extraLarge"
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1088,
+        0
+      ],
+      "id": "a27bd78c-417a-4eac-9ad8-0cf683cca8fc",
+      "name": "Telegram Trigger",
+      "webhookId": "",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "85eddaa1-1437-44c1-8b79-6a3ace08a28e",
+              "leftValue": "={{ $json.business_message.photo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -544,
+        16
+      ],
+      "id": "b2e612a0-9c44-4262-94b9-4dc1c7e0e0e9",
+      "name": "If photo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6d07c4f9-ef07-4457-973f-d675e8690f03",
+              "leftValue": "={{ $json.business_message.document }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -752,
+        0
+      ],
+      "id": "5370f575-f022-45a9-9ad4-da2c86b0ec3d",
+      "name": "If documents"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ `${$json.chat_id}${$json.user_id}${$json.message}` }}",
+        "dataPropertyName": "proof_hash",
+        "encoding": "base64"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        864,
+        80
+      ],
+      "id": "bcce3901-31a2-49b7-be5b-11a1d32062ee",
+      "name": "Crypto1"
+    },
+    {
+      "parameters": {
+        "content": "## текст",
+        "height": 80,
+        "width": 182,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "15e1b95e-adeb-43b0-a6f6-e6dcb5b41902",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## картинки",
+        "height": 80,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "2cc5e51b-7af2-4b68-8c94-5ad72875f3f5",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## документы",
+        "height": 80,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -32
+      ],
+      "typeVersion": 1,
+      "id": "d43e4195-dd08-4fd7-b306-96f13965db9a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2a11dbd-50af-4612-b7a3-75ba4d700c54",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            },
+            {
+              "id": "1ec97593-584a-4309-9db3-20657917ad0d",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "78fee94c-72fe-4845-8998-d8d8e16373ae",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "362a2bc7-e55e-40b0-994b-fd068892cf0a",
+              "name": "username",
+              "value": "={{ $json.username }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        80
+      ],
+      "id": "a3e427dc-e0d4-4b6b-b07b-429bf20028ef",
+      "name": "Edit Fields6",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "translate",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -672,
+        608
+      ],
+      "id": "1c84d083-4db5-485c-9b1d-a8b2c5730732",
+      "name": "Translate a recording",
+      "notesInFlow": true,
+      "credentials": {
+        "openAiApi": {
+          "id": " ",
+          "name": "{{YOUR_open_ai}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.business_message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        384
+      ],
+      "id": "6c3b168c-7d28-40b4-9d63-6605451eff83",
+      "name": "Get a file4",
+      "webhookId": "3b3e3f6f-103e-478a-8dba-1138953b7b5c",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "path": "=/my_logs/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        384
+      ],
+      "id": "ebe25a93-a9c4-4a94-a868-0ba54be41866",
+      "name": "FTP4",
+      "notesInFlow": true,
+      "credentials": {
+        "ftp": {
+          "id": "",
+          "name": "FTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "openai/gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "OPENAI/GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Переведи следующий текст на русский язык: {{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -496,
+        608
+      ],
+      "id": "37651f87-c190-4e16-b4cc-cdf5d0cc4a5c",
+      "name": "Message a model",
+      "notesInFlow": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -16,
+        400
+      ],
+      "id": "e1ababc6-352e-4e7b-ae85-7e9efba904b4",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14456395-e0b6-41aa-aa36-efd52017cad1",
+              "name": "message.content",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        608
+      ],
+      "id": "1c1bd070-715f-4e36-a64c-3a4e103ac112",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "54d86fb9-f60d-4f81-b9fa-22d156991003",
+              "name": "result.file_path",
+              "value": "=файл: {{YOUR_DOMAIN}}/logs/{{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        384
+      ],
+      "id": "7d5c8c8f-8fb6-4195-846b-4360e247fbe4",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "content": "## голосовые, аудио-ноты",
+        "height": 80,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "86a7f180-b762-4c5e-9b14-1801fc8614a6",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "88bebdd9-4155-4bc8-90d7-d53ca4c60401",
+              "leftValue": "={{ $json.business_message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -336,
+        32
+      ],
+      "id": "29699c07-1c26-4715-b01d-03cbf8e9d8e8",
+      "name": "If voice"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8cd43a02-51f2-4f6c-8671-5034a16f771e",
+              "leftValue": "={{ $json.business_message.video }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        48
+      ],
+      "id": "165cd4d5-8185-4e74-ab81-11a96c1f8843",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.business_message.document.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        -256
+      ],
+      "id": "bdf9c7fa-dbda-47cd-bf33-38d0b771c755",
+      "name": "Get document",
+      "webhookId": "34eb5f6b-9ad0-4e3a-9c47-4ef3999b68de",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "path": "=/my_logs/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -256
+      ],
+      "id": "7af3cba8-5fdb-4a18-94a4-d5eac62b8fdc",
+      "name": "FTP document",
+      "credentials": {
+        "ftp": {
+          "id": "",
+          "name": "FTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33bb768d-4f16-4baa-9eb9-8567033c2fa3",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "668d1185-0992-40c3-9315-575fb3889b07",
+              "name": "username",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "22ca06e2-66ea-4beb-ba52-1557034d3518",
+              "name": "name",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.first_name }}_{{ $('Telegram Trigger').item.json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6bc997b-4422-4493-9d9d-2a611fceaa6f",
+              "name": "message",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.caption || '' }} {{YOUR_DOMAIN}}/logs/{{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -96
+      ],
+      "id": "f0fa0f50-e125-4199-bd6c-2650709f2ec3",
+      "name": "document",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.business_message.photo[$json.business_message.photo.length - 1].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -768,
+        -528
+      ],
+      "id": "387d1917-a006-442d-8c58-976bf1c7436d",
+      "name": "Get photo",
+      "webhookId": "1c32dc3e-14f9-45a1-994c-704efbdb9c59",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "path": "=/my_logs/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -528
+      ],
+      "id": "5ba204dc-461a-476e-9d37-e633455d5923",
+      "name": "FTP photo",
+      "credentials": {
+        "ftp": {
+          "id": "",
+          "name": "FTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33bb768d-4f16-4baa-9eb9-8567033c2fa3",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "668d1185-0992-40c3-9315-575fb3889b07",
+              "name": "username",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "22ca06e2-66ea-4beb-ba52-1557034d3518",
+              "name": "name",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.first_name }}_{{ $('Telegram Trigger').item.json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6bc997b-4422-4493-9d9d-2a611fceaa6f",
+              "name": "message",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.caption || '' }} {{YOUR_DOMAIN}}/logs/{{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -256
+      ],
+      "id": "c2668231-d3a2-4ec6-a96f-b0b0527172a6",
+      "name": "photo",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.business_message.video.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -784,
+        -816
+      ],
+      "id": "b5c7c48e-e0b5-42b6-816d-cdf2c870cf77",
+      "name": "Get video",
+      "webhookId": "386996e4-6b73-4ba5-b8fe-6c43b714f96e",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "path": "=/my_logs/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -816
+      ],
+      "id": "6bd48c4b-44dc-4614-8896-00e22b23bdaf",
+      "name": "FTP video",
+      "notesInFlow": true,
+      "credentials": {
+        "ftp": {
+          "id": "",
+          "name": "FTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## видео",
+        "height": 80,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "794de0a3-1ad4-4adb-8670-7ae10093a060",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2a11dbd-50af-4612-b7a3-75ba4d700c54",
+              "name": "chat_id",
+              "value": "={{ $json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "1ec97593-584a-4309-9db3-20657917ad0d",
+              "name": "message",
+              "value": "={{ $json.business_message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "78fee94c-72fe-4845-8998-d8d8e16373ae",
+              "name": "name",
+              "value": "={{ $json.business_message.from.first_name }} {{ $json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "362a2bc7-e55e-40b0-994b-fd068892cf0a",
+              "name": "username",
+              "value": "={{ $json.business_message.from.username }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        80
+      ],
+      "id": "4e36c0de-818b-4fd4-a50a-d9947ea18f14",
+      "name": "text",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33bb768d-4f16-4baa-9eb9-8567033c2fa3",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "668d1185-0992-40c3-9315-575fb3889b07",
+              "name": "username",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "22ca06e2-66ea-4beb-ba52-1557034d3518",
+              "name": "name",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.first_name }}_{{ $('Telegram Trigger').item.json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6bc997b-4422-4493-9d9d-2a611fceaa6f",
+              "name": "message",
+              "value": "={{ $json.message.content }} {{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        256
+      ],
+      "id": "972b4559-26d3-4cd0-a310-9a4676547367",
+      "name": "voice",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33bb768d-4f16-4baa-9eb9-8567033c2fa3",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "668d1185-0992-40c3-9315-575fb3889b07",
+              "name": "username",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "22ca06e2-66ea-4beb-ba52-1557034d3518",
+              "name": "name",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.first_name }}_{{ $('Telegram Trigger').item.json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6bc997b-4422-4493-9d9d-2a611fceaa6f",
+              "name": "message",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.caption || '' }} {{YOUR_DOMAIN}}/logs/{{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -432
+      ],
+      "id": "7189fed4-04f7-45c6-a13d-3b3c93d9d0c6",
+      "name": "video",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "tableId": "my_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "chat_id",
+              "fieldValue": "={{ $json.chat_id }}"
+            },
+            {
+              "fieldId": "username",
+              "fieldValue": "=@{{ $json.username }}"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $json.message }}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.name }}"
+            },
+            {
+              "fieldId": "proof_hash",
+              "fieldValue": "={{ $json.proof_hash }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        80
+      ],
+      "id": "4a7029f6-93da-4c1a-b8ee-48f48fa9127a",
+      "name": "my_logs",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f25061ef-90f1-4f07-bcb8-09a8be4e4b4e",
+              "leftValue": "={{ $json.business_message.video_note }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        80,
+        64
+      ],
+      "id": "9abf5259-7518-4c77-8d4a-feaa2bac9cc1",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.business_message.video_note.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -768,
+        896
+      ],
+      "id": "f92da905-1f48-4eb8-8f37-e05e583676c0",
+      "name": "Get a file",
+      "webhookId": "8a4f38d8-146c-4b2d-baf0-785b2a4af97e",
+      "credentials": {
+        "telegramApi": {
+          "id": " ",
+          "name": "{{YOUR_bot_for_logs}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "path": "=/my_logs/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ftp",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        896
+      ],
+      "id": "f818bc46-f2d7-4214-9f2c-549b37271660",
+      "name": "FTP document1",
+      "credentials": {
+        "ftp": {
+          "id": "",
+          "name": "FTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33bb768d-4f16-4baa-9eb9-8567033c2fa3",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "668d1185-0992-40c3-9315-575fb3889b07",
+              "name": "username",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "22ca06e2-66ea-4beb-ba52-1557034d3518",
+              "name": "name",
+              "value": "={{ $('Telegram Trigger').item.json.business_message.from.first_name }}_{{ $('Telegram Trigger').item.json.business_message.from.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6bc997b-4422-4493-9d9d-2a611fceaa6f",
+              "name": "message",
+              "value": "=https://aibotplace.ru/n8n/my_ligs/{{ $json.result.file_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        432
+      ],
+      "id": "05051685-f3f9-4fc7-8800-47f407c721b1",
+      "name": "voice1",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "content": "## видео-ноты",
+        "height": 80,
+        "width": 176,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        416
+      ],
+      "typeVersion": 1,
+      "id": "1760e77d-af74-4a26-b221-f35e188ca4fa",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If photo": {
+      "main": [
+        [
+          {
+            "node": "Get photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If documents": {
+      "main": [
+        [
+          {
+            "node": "Get document",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto1": {
+      "main": [
+        [
+          {
+            "node": "my_logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Crypto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate a recording": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file4": {
+      "main": [
+        [
+          {
+            "node": "Translate a recording",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "FTP4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTP4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If voice": {
+      "main": [
+        [
+          {
+            "node": "Get a file4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get document": {
+      "main": [
+        [
+          {
+            "node": "FTP document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTP document": {
+      "main": [
+        [
+          {
+            "node": "document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "document": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get photo": {
+      "main": [
+        [
+          {
+            "node": "FTP photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTP photo": {
+      "main": [
+        [
+          {
+            "node": "photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "photo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get video": {
+      "main": [
+        [
+          {
+            "node": "FTP video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTP video": {
+      "main": [
+        [
+          {
+            "node": "video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "voice": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "video": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "FTP document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FTP document1": {
+      "main": [
+        [
+          {
+            "node": "voice1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "voice1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Novosibirsk",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17e4fc35cc044cf821799e4110dfa49479f4171d0b000c1a1538fa459aebaa7a"
+  },
+  "id": "",
+  "tags": [
+    {
+      "updatedAt": "2026-02-04T18:04:47.758Z",
+      "createdAt": "2026-02-04T18:04:47.758Z",
+      "id": "v1d6Ig2K6gIF7peM",
+      "name": "logirovanie"
+    },
+    {
+      "updatedAt": "2026-02-04T18:04:52.893Z",
+      "createdAt": "2026-02-04T18:04:52.893Z",
+      "id": "xE8mQ0ONgBU55jaF",
+      "name": "logs"
+    },
+    {
+      "updatedAt": "2026-02-04T18:05:08.487Z",
+      "createdAt": "2026-02-04T18:05:08.487Z",
+      "id": "wArZbJHMwWByOm8H",
+      "name": "telegram"
+    }
+  ]
+}
