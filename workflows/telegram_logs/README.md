@@ -124,3 +124,17 @@ proof_hash: "abc123def...base64"
 - **Telegram:** @vershininanata
 - **Email:** vertunatpr@yandex.ru
 - **Локация:** Новосибирск, Россия
+
+## Topics / Ключевые слова
+- n8n 2.4.4
+- telegram-bot
+- telegram-logger
+- telegram-api
+- chat-logging
+- message-logger
+- n8n-workflow
+- telegram-n8n
+- supabase
+- postgresql-logging
+- automation
+- chatbot

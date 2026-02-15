@@ -79,3 +79,9 @@
 - **Telegram:** @vershininanata
 - **Email:** vertunatpr@yandex.ru
 - **Локация:** Новосибирск, Россия
+
+## Topics / Ключевые слова
+- n8n 2.4.4
+- eltex
+- eltex api
+- Workflow automation
