@@ -20,7 +20,7 @@
 ## Требования
 
 | Сервис | Credentials |
-| :-- | :-- | :-- |
+| :-- | :-- |
 | OpenAI | HTTP Header Auth |  |
 | DeepSeek | HTTP Header Auth |  |
 | Replicate | HTTP Header Auth |  |
