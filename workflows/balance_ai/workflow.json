@@ -1,0 +1,1117 @@
+{
+  "name": "AI_account_balance_workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "total_usd",
+              "value": "={{ ($json.data || []).reduce((acc, item) => acc + (item.n_context_tokens * 0.00000015) + (item.n_generated_tokens * 0.0000006), 0).toFixed(4) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        -208
+      ],
+      "id": "ad10533e-8141-4a4b-8839-89f0eadc71f5",
+      "name": "total_usd"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "dates",
+              "value": "={{ $now.minus({ days: 1 }).format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -208
+      ],
+      "id": "",
+      "name": "вчера"
+    },
+    {
+      "parameters": {
+        "tableId": "my_ai_many",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ai",
+              "fieldValue": "openai"
+            },
+            {
+              "fieldId": "total_usd",
+              "fieldValue": "={{ $json.total_usd }}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $('вчера').item.json.dates }}"
+            },
+            {
+              "fieldId": "balance_usd",
+              "fieldValue": "={{ (Number($json.balance_usd) - Number($('total_usd').item.json.total_usd)).toFixed(2) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -208
+      ],
+      "id": "",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "my_ai_many",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ai",
+              "keyValue": "openai"
+            },
+            {
+              "keyName": "date",
+              "keyValue": "={{ $now.minus({ days: 2 }).format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -208
+      ],
+      "id": "",
+      "name": "Get balance",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "",
+              "leftValue": "={{ $json.balance_usd < 5 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        -208
+      ],
+      "id": "",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "твой chat_id",
+        "text": "=Внимание!\nТвой OpenAI баланс менее 5 $\nПополни!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2256,
+        -224
+      ],
+      "id": "",
+      "name": "OpenAI баланс менее 5 $",
+      "webhookId": "",
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Привратник"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        304
+      ],
+      "id": "",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.openai.com/v1/usage?date={{ $json.dates }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        -208
+      ],
+      "id": "089bf950-4501-4795-8ec4-6b1fdaa184f6",
+      "name": "openai",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "твоя авторизация open ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "balance_",
+              "value": "={{ $json.balance_infos[0].topped_up_balance }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        288
+      ],
+      "id": "",
+      "name": "total_usd1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "dates",
+              "value": "={{ $now.minus({ days: 1 }).format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        288
+      ],
+      "id": "",
+      "name": "вчера1"
+    },
+    {
+      "parameters": {
+        "tableId": "my_ai_many",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ai",
+              "fieldValue": "deepseek"
+            },
+            {
+              "fieldId": "total_usd",
+              "fieldValue": "={{ (Number($json.balance_usd) - Number($('total_usd1').item.json.balance_)).toFixed(2) }}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $('вчера1').item.json.dates }}"
+            },
+            {
+              "fieldId": "balance_usd",
+              "fieldValue": "={{ $('total_usd1').item.json.balance_ }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        288
+      ],
+      "id": "",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "my_ai_many",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ai",
+              "keyValue": "deepseek"
+            },
+            {
+              "keyName": "date",
+              "keyValue": "={{ $now.minus({ days: 2 }).format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        288
+      ],
+      "id": "",
+      "name": "Get balance1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "",
+              "leftValue": "={{ $json.balance_usd < 5 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1952,
+        288
+      ],
+      "id": "",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.deepseek.com/user/balance",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        288
+      ],
+      "id": "",
+      "name": "deepseek",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "deepseek_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "твой chat_id",
+        "text": "=Внимание!\nТвой DeepSeek баланс менее 5 $\nПополни!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2288,
+        272
+      ],
+      "id": "",
+      "name": "DeepSeek баланс менее 5 $1",
+      "webhookId": "",
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Привратник"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        288
+      ],
+      "id": "",
+      "name": "Wait",
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "dates",
+              "value": "={{ $now.minus({ days: 1 }).format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        784
+      ],
+      "id": "",
+      "name": "вчера2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        784
+      ],
+      "id": "",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "metrics.predict_time"
+            },
+            {
+              "aggregation": "sum",
+              "field": "metrics.total_time"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        1024
+      ],
+      "id": "",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "",
+              "leftValue": "={{ $json.results.status }}",
+              "rightValue": "=succeeded",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "",
+              "leftValue": "={{ $json.results.metrics.predict_time }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        784
+      ],
+      "id": "",
+      "name": "Filter succeeded"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "",
+              "leftValue": "={{ $json.results.completed_at.split(\"T\")[0] }}",
+              "rightValue": "={{ $('вчера2').item.json.dates }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1616,
+        784
+      ],
+      "id": "",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.replicate.com/v1/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        784
+      ],
+      "id": "",
+      "name": "replicate",
+      "notesInFlow": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Replicate_token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "total_usd",
+              "value": "={{ (($json.sum_metrics_predict_time * 0.0007)).toFixed(4) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        1024
+      ],
+      "id": "",
+      "name": "total_usd2"
+    },
+    {
+      "parameters": {
+        "tableId": "my_ai_many",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ai",
+              "fieldValue": "replicate"
+            },
+            {
+              "fieldId": "total_usd",
+              "fieldValue": "={{ $('total_usd2').item.json.total_usd }}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $('вчера2').item.json.dates }}"
+            },
+            {
+              "fieldId": "balance_usd",
+              "fieldValue": "={{ (Number($json.balance_usd) - Number($('total_usd2').item.json.total_usd)).toFixed(2) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        1024
+      ],
+      "id": "",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "my_ai_many",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ai",
+              "keyValue": "replicate"
+            },
+            {
+              "keyName": "date",
+              "keyValue": "={{ $now.minus({ days: 2 }).format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        1024
+      ],
+      "id": "",
+      "name": "Get balance2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Твой акк supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "",
+              "leftValue": "={{ $json.balance_usd < 10 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1952,
+        1024
+      ],
+      "id": "",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "chatId": "твой chat_id",
+        "text": "=Внимание!\nТвой Replicate баланс менее 10 $\nПополни!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2304,
+        1008
+      ],
+      "id": "",
+      "name": "Replicate баланс менее 10 $",
+      "webhookId": "",
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Привратник"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        784
+      ],
+      "id": "",
+      "name": "Wait1",
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "content": "# openai",
+        "height": 80,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# deepseek",
+        "height": 80,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# replicate",
+        "height": 80,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        672
+      ],
+      "typeVersion": 1,
+      "id": "",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "total_usd": {
+      "main": [
+        [
+          {
+            "node": "Get balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "вчера": {
+      "main": [
+        [
+          {
+            "node": "openai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get balance": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "OpenAI баланс менее 5 $",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "вчера",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "openai": {
+      "main": [
+        [
+          {
+            "node": "total_usd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "total_usd1": {
+      "main": [
+        [
+          {
+            "node": "Get balance1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "вчера1": {
+      "main": [
+        [
+          {
+            "node": "deepseek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get balance1": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "DeepSeek баланс менее 5 $1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deepseek": {
+      "main": [
+        [
+          {
+            "node": "total_usd1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "вчера1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "вчера2": {
+      "main": [
+        [
+          {
+            "node": "replicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter succeeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "total_usd2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter succeeded": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "replicate": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "total_usd2": {
+      "main": [
+        [
+          {
+            "node": "Get balance2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get balance2": {
+      "main": [
+        [
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Replicate баланс менее 10 $",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "вчера2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Novosibirsk",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
