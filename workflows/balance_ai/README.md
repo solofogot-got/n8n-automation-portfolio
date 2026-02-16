@@ -21,7 +21,7 @@
 
 | Сервис | Credentials | Supabase таблица |
 | :-- | :-- | :-- |
-| OpenAI | HTTP Header Auth | `my_ai_many` (ai:string, date:string, total_usd:number, balance_usd:number) |
+| OpenAI | HTTP Header Auth |  |
 | DeepSeek | HTTP Header Auth |  |
 | Replicate | HTTP Header Auth |  |
 | Supabase | Supabase API |  |
