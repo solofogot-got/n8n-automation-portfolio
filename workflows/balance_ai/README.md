@@ -19,7 +19,7 @@
 
 ## Требования
 
-| Сервис | Credentials | Supabase таблица |
+| Сервис | Credentials |
 | :-- | :-- | :-- |
 | OpenAI | HTTP Header Auth |  |
 | DeepSeek | HTTP Header Auth |  |
